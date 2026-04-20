@@ -1,0 +1,15 @@
+{
+  "name": "no-more-groceries",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w services/api & npm run dev -w apps/web",
+    "dev:web": "npm run dev -w apps/web",
+    "dev:api": "npm run dev -w services/api",
+    "build": "npm run build -w services/api && npm run build -w apps/web"
+  }
+}
