@@ -1,0 +1,15 @@
+{
+  "name": "@nmg/domain-weekly-cart",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nmg/shared": "*"
+  }
+}
