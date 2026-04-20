@@ -1,22 +1,101 @@
 {
   "name": "no-more-groceries",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
+  "author": "No More Groceries",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n API,WEB -c cyan,magenta \"node server.mjs\" \"vite\"",
+    "api": "node server.mjs",
+    "web": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "api": "node server.mjs"
+    "test": "node run-tests.js",
+    "refresh": "node jobs/daily-refresh/run.js",
+    "electron:dev": "npm run build && electron .",
+    "electron:rebuild": "electron-builder install-app-deps",
+    "electron:pack": "npm run build && electron-builder --dir --config.npmRebuild=false",
+    "electron:dist": "npm run build && electron-builder --config.npmRebuild=false",
+    "electron:win": "npm run build && electron-builder --win --config.npmRebuild=false",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.nomoregroces.app",
+    "productName": "No More Groceries",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "release",
+      "buildResources": "electron/assets"
+    },
+    "files": [
+      "dist/**",
+      "server.mjs",
+      "packages/**",
+      "jobs/**",
+      "electron/main.js",
+      "electron/preload.js",
+      "node_modules/**",
+      "!node_modules/**/test/**",
+      "!node_modules/**/__tests__/**",
+      "!node_modules/**/*.md",
+      "!node_modules/**/*.map"
+    ],
+    "extraResources": [],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "No More Groceries",
+      "installerIcon": "electron/assets/icon.ico",
+      "uninstallerIcon": "electron/assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "electron/assets/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "electron/assets/icon.png"
+    },
+    "electronLanguages": [
+      "en"
+    ],
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "nativeRebuilder": "legacy",
+    "npmRebuild": true
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.7.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.1.2",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
     "typescript": "^5.6.3",
     "vite": "^5.4.10"
   }

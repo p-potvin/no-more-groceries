@@ -137,3 +137,68 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# ── No More Groceries — project-specific ────────────────────────────────────
+
+# Runtime SQLite database & WAL journal files (contain live scraped data)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Electron build output (binaries, installers — use GitHub Releases instead)
+release/
+dist-electron/
+
+# Vite production build (regenerated from source)
+dist/
+
+# Environment / secrets (never commit real credentials)
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+
+# API keys or secrets files if added later
+secrets.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+
+# OS artifacts
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor artifacts
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docview
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Test coverage / reports
+coverage/
+*.lcov
+.nyc_output/
+
+# electron-builder cache
+electron-builder-cache/
+buildResources/
+
+# Temporary / scratch files
+*.tmp
+*.temp
+tmp/
+temp/

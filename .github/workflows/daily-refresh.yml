@@ -1,0 +1,44 @@
+name: Daily Refresh
+
+on:
+  schedule:
+    # Run every day at 6:00 AM UTC (2 AM EST / 1 AM CST)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Override date (YYYY-MM-DD) for refresh'
+        required: false
+        type: string
+
+jobs:
+  daily-refresh:
+    name: Run Daily Snapshot + Compute
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run daily refresh pipeline
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            node jobs/daily-refresh/run.js --date ${{ github.event.inputs.date }}
+          else
+            node jobs/daily-refresh/run.js
+          fi
+
+      - name: Upload DB snapshot
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: db-snapshot-${{ github.run_id }}
+          path: data/groceries.db
+          retention-days: 30
