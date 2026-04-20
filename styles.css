@@ -624,3 +624,30 @@ body {
   .dashboard-grid { grid-template-columns: 1fr; }
   .compare-item { grid-template-columns: auto 1fr auto; }
 }
+
+/* ── Language toggle ─────────────────────────────────────────────────────── */
+.lang-toggle {
+  padding:       0.55rem 1rem;
+  background:    var(--bg-3);
+  border:        1px solid var(--border);
+  border-radius: 99px;
+  color:         var(--text-2);
+  font-family:   var(--font);
+  font-size:     0.78rem;
+  font-weight:   600;
+  letter-spacing: 0.04em;
+  cursor:        pointer;
+  transition:    all 0.2s ease;
+  white-space:   nowrap;
+  align-self:    center;
+}
+
+.lang-toggle:hover {
+  border-color: var(--accent);
+  color:        var(--accent);
+  background:   var(--accent-glow);
+  transform:    translateY(-1px);
+}
+
+.lang-toggle:active { transform: scale(0.97); }
+
