@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const API_BASE = 'http://localhost:8787';
+const API_BASE = '';
 
 function Section({ title, children }) {
   return (
@@ -108,7 +108,7 @@ export default function App() {
           <p className="eyebrow">PC Express Deals Dashboard</p>
           <h1>No More Groceries</h1>
           <p className="subcopy">
-            Daily grocery deal tracking, benchmark cart pricing, and a recommended 7-day cart.
+            Live-store seeded grocery deal tracking, benchmark cart pricing, and a recommended 7-day cart.
           </p>
         </div>
         <div className="hero-stats">
@@ -117,8 +117,8 @@ export default function App() {
             <strong>{selectedStore ? selectedStore.name : '—'}</strong>
           </div>
           <div className="stat">
-            <span>Household size</span>
-            <strong>{householdSize}</strong>
+            <span>Banner</span>
+            <strong>{selectedStore ? selectedStore.banner : '—'}</strong>
           </div>
         </div>
       </header>
@@ -151,6 +151,7 @@ export default function App() {
           </label>
           <button onClick={loadStores}>Refresh nearby stores</button>
         </div>
+        {selectedStore ? <p className="store-meta">{selectedStore.address} · {selectedStore.city}, {selectedStore.province}</p> : null}
       </Section>
 
       {error ? <p className="error-banner">{error}</p> : null}
