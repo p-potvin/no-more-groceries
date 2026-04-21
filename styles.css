@@ -8,39 +8,6 @@
 
 /* ── Design tokens ────────────────────────────────────────────────────────── */
 :root {
-  /* Colors */
-  --bg-0:        #0a0d13;
-  --bg-1:        #111621;
-  --bg-2:        #171c2d;
-  --bg-3:        #1e2438;
-  --surface:     #1a2035;
-  --surface-hi:  #212840;
-  --border:      rgba(255,255,255,0.07);
-  --border-hi:   rgba(255,255,255,0.14);
-
-  --text-1:      #f0f4ff;
-  --text-2:      #a8b3cc;
-  --text-3:      #6b7898;
-
-  --accent:      #5c79ff;
-  --accent-glow: rgba(92,121,255,0.25);
-  --green:       #3dd68c;
-  --green-dim:   rgba(61,214,140,0.15);
-  --amber:       #f5a623;
-  --amber-dim:   rgba(245,166,35,0.15);
-  --red:         #f05252;
-  --red-dim:     rgba(240,82,82,0.15);
-  --purple:      #a78bfa;
-  --purple-dim:  rgba(167,139,250,0.12);
-
-  /* Gradients */
-  --grad-header: linear-gradient(135deg, #1a2035 0%, #0e1828 60%, #0a0d13 100%);
-  --grad-card:   linear-gradient(145deg, #1e2438, #171c2d);
-  --grad-accent: linear-gradient(135deg, #5c79ff, #a78bfa);
-
-  /* Type */
-  --font: 'Inter', system-ui, sans-serif;
-  --radius:  14px;
   --radius-sm: 8px;
 
   /* Shadows */
