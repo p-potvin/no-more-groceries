@@ -501,4 +501,40 @@
     - `docs/runbook.md`
     - logging/alert config
 - **acceptance_criteria:**
-    - Stale jobs and failed refreshes are visible
+  - [ ] Stale jobs and failed refreshes are visible
+
+---
+
+## Post-Quantum & Security
+
+### PQC-01
+
+- **title:** Implement ML-KEM (Post-Quantum Cryptography) for API
+- **owner:** team-orchestrator
+- **status:** pending
+- **goal:** Secure API communication using NIST-standardized ML-KEM for key encapsulation.
+- **deliverables:**
+    - `packages/shared/security/ml-kem.js` (implementation)
+    - Integration in API request/response lifecycle
+    - Client-side handshake update in `App.jsx`
+- **acceptance_criteria:**
+    - Handshake completes successfully with quantum-resistant keys
+    - No performance degradation > 50ms per request
+
+---
+
+## Maintenance & Renaming
+
+### REN-01
+
+- **title:** Rename project from `vaultwares-pipelines` to `vault-server`
+- **owner:** team-orchestrator
+- **status:** pending
+- **goal:** Systematic renaming across all repositories, config files, and documentation.
+- **deliverables:**
+    - Full renaming plan (DDR)
+    - Scripts to automate the rename across submodules
+    - Updated documentation and CI config
+- **acceptance_criteria:**
+    - Project builds and runs under the new name
+    - No broken links or references to old name exists in primary docs
