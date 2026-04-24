@@ -527,7 +527,7 @@
 
 ### REN-01
 
-- **title:** Rename project from `vaultwares-pipelines` to `vault-server`
+- **title:** Rename project from `vault-server` to `vault-server`
 - **owner:** team-orchestrator
 - **status:** pending
 - **goal:** Systematic renaming across all repositories, config files, and documentation.
