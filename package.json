@@ -3,17 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-<<<<<<< HEAD
-<<<<<<< HEAD
   "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
   "author": "No More Groceries",
   "main": "electron/main.cjs",
-=======
-=======
-  "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
-  "author": "No More Groceries",
-  "main": "electron/main.cjs",
->>>>>>> main
   "workspaces": [
     "apps/*",
     "packages/*",
@@ -21,10 +13,6 @@
     "packages/integrations/*",
     "jobs/*"
   ],
-<<<<<<< HEAD
->>>>>>> origin/copilot/build-mvp-for-daily-grocery-deals
-=======
->>>>>>> main
   "scripts": {
     "dev": "concurrently -n API,WEB -c cyan,magenta \"node server.mjs\" \"vite\"",
     "api": "node server.mjs",
@@ -112,9 +100,12 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.5.0",
     "concurrently": "^9.1.2",
     "electron": "^41.2.1",
     "electron-builder": "^26.8.1",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4",
     "typescript": "^5.6.3",
     "vite": "^6.3.4"
   }

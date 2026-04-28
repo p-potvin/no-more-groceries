@@ -24,7 +24,7 @@ html {
 }
 
 body {
-  font-family:      var(--font);
+  @apply bg-paper text-ink font-sans;
   background-color: var(--bg-0);
   color:            var(--text-1);
   min-height:       100vh;
@@ -34,6 +34,7 @@ body {
 
 /* ── App shell ────────────────────────────────────────────────────────────── */
 .app-shell {
+  @apply max-w-5xl mx-auto px-4 pb-12;
   max-width: 1300px;
   margin:    0 auto;
   padding:   0 1.25rem 3rem;
@@ -41,6 +42,7 @@ body {
 
 /* ── Hero header ─────────────────────────────────────────────────────────── */
 .hero {
+  @apply bg-paper border-b border-slate p-8 px-4 mb-8 flex items-center justify-between flex-wrap gap-6 relative overflow-hidden;
   background:     var(--grad-header);
   border-bottom:  1px solid var(--border);
   padding:        2.5rem 1.25rem 2rem;
@@ -63,6 +65,7 @@ body {
 }
 
 .hero-brand .eyebrow {
+  @apply text-xs font-semibold uppercase text-burgundy mb-1;
   font-size:     0.72rem;
   font-weight:   600;
   letter-spacing: 0.1em;
@@ -72,6 +75,7 @@ body {
 }
 
 .hero-brand h1 {
+  @apply text-4xl font-extrabold leading-tight bg-gradient-to-r from-burgundy to-gold bg-clip-text text-transparent;
   font-size:   2.25rem;
   font-weight: 800;
   line-height: 1.1;
@@ -82,6 +86,7 @@ body {
 }
 
 .hero-brand .subcopy {
+  @apply text-sm text-slate mt-2 max-w-lg;
   font-size:  0.875rem;
   color:      var(--text-2);
   margin-top: 0.5rem;
@@ -89,12 +94,14 @@ body {
 }
 
 .hero-stats {
+  @apply flex gap-5 flex-wrap;
   display:   flex;
   gap:       1.25rem;
   flex-wrap: wrap;
 }
 
 .stat-chip {
+  @apply bg-paper border border-slate rounded-sm px-4 py-2 text-center min-w-[120px];
   background: var(--bg-3);
   border:     1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -104,6 +111,7 @@ body {
 }
 
 .stat-chip span {
+  @apply block text-xs text-slate font-medium uppercase mb-1;
   display:     block;
   font-size:   0.72rem;
   color:       var(--text-3);
@@ -114,6 +122,7 @@ body {
 }
 
 .stat-chip strong {
+  @apply text-base font-bold text-ink block truncate max-w-[160px];
   font-size:   1rem;
   font-weight: 700;
   color:       var(--text-1);
@@ -126,6 +135,7 @@ body {
 
 /* ── Tab nav ──────────────────────────────────────────────────────────────── */
 .tab-nav {
+  @apply flex gap-1 bg-paper border border-slate rounded px-2 mb-6 overflow-x-auto;
   display:       flex;
   gap:           0.25rem;
   background:    var(--bg-1);
@@ -140,6 +150,7 @@ body {
 .tab-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
+  @apply flex-1 min-w-fit px-4 py-2 border-none rounded bg-transparent text-slate font-medium text-sm cursor-pointer transition whitespace-nowrap;
   flex:          1;
   min-width:     fit-content;
   padding:       0.625rem 1.1rem;
@@ -161,6 +172,7 @@ body {
 }
 
 .tab-btn.active {
+  @apply bg-burgundy text-white font-semibold shadow;
   background: var(--grad-accent);
   color:      #fff;
   font-weight: 600;
@@ -169,6 +181,7 @@ body {
 
 /* ── Controls panel ──────────────────────────────────────────────────────── */
 .controls-panel {
+  @apply bg-paper border border-slate rounded px-5 py-5 mb-6 flex flex-wrap gap-4 items-end;
   background:    var(--surface);
   border:        1px solid var(--border);
   border-radius: var(--radius);
@@ -181,6 +194,7 @@ body {
 }
 
 .form-field {
+  @apply flex flex-col gap-1 flex-1 min-w-[140px];
   display:       flex;
   flex-direction: column;
   gap:           0.35rem;
@@ -189,6 +203,7 @@ body {
 }
 
 .form-field label {
+  @apply text-xs font-semibold uppercase text-slate;
   font-size:     0.72rem;
   font-weight:   600;
   letter-spacing: 0.06em;
@@ -198,6 +213,7 @@ body {
 
 .form-field input,
 .form-field select {
+  @apply bg-paper border border-slate rounded-sm text-ink font-sans text-base px-3 py-2 transition outline-none;
   background:    var(--bg-2);
   border:        1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -212,6 +228,7 @@ body {
 
 .form-field input:focus,
 .form-field select:focus {
+  @apply border-burgundy ring-2 ring-burgundy/20;
   border-color: var(--accent);
   box-shadow:   0 0 0 3px var(--accent-glow);
 }
@@ -225,12 +242,14 @@ body {
 }
 
 .size-picker {
+  @apply flex gap-1 flex-wrap;
   display:   flex;
   gap:       0.35rem;
   flex-wrap: wrap;
 }
 
 .size-btn {
+  @apply px-3 py-2 border border-slate rounded-sm bg-paper text-slate font-medium text-xs cursor-pointer transition;
   padding:       0.45rem 0.85rem;
   border:        1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -244,6 +263,7 @@ body {
 }
 
 .size-btn.active {
+  @apply bg-burgundy border-burgundy text-white;
   background:  var(--accent);
   border-color: var(--accent);
   color:       #fff;
@@ -255,6 +275,7 @@ body {
 }
 
 .btn-primary {
+  @apply px-6 py-2 bg-burgundy rounded-sm text-white font-semibold text-base cursor-pointer transition whitespace-nowrap;
   padding:       0.65rem 1.4rem;
   background:    var(--grad-accent);
   border:        none;
@@ -594,6 +615,7 @@ body {
 
 /* ── Language toggle ─────────────────────────────────────────────────────── */
 .lang-toggle {
+  @apply px-4 py-2 bg-paper border border-slate rounded-full text-slate font-semibold text-xs uppercase cursor-pointer transition whitespace-nowrap self-center;
   padding:       0.55rem 1rem;
   background:    var(--bg-3);
   border:        1px solid var(--border);
@@ -610,6 +632,7 @@ body {
 }
 
 .lang-toggle:hover {
+  @apply border-burgundy text-burgundy bg-burgundy/10 -translate-y-0.5;
   border-color: var(--accent);
   color:        var(--accent);
   background:   var(--accent-glow);
