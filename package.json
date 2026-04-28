@@ -3,9 +3,19 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+<<<<<<< HEAD
   "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
   "author": "No More Groceries",
   "main": "electron/main.cjs",
+=======
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/domain/*",
+    "packages/integrations/*",
+    "jobs/*"
+  ],
+>>>>>>> origin/copilot/build-mvp-for-daily-grocery-deals
   "scripts": {
     "dev": "concurrently -n API,WEB -c cyan,magenta \"node server.mjs\" \"vite\"",
     "api": "node server.mjs",
