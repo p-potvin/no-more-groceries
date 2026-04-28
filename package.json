@@ -6,6 +6,13 @@
   "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
   "author": "No More Groceries",
   "main": "electron/main.cjs",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/domain/*",
+    "packages/integrations/*",
+    "jobs/*"
+  ],
   "scripts": {
     "dev": "concurrently -n API,WEB -c cyan,magenta \"node server.mjs\" \"vite\"",
     "api": "node server.mjs",
