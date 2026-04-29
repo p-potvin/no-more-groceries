@@ -14,6 +14,7 @@ export const frCA = {
     cart:    '🧺 Panier moyen',
     weekly:  '📅 Panier 7 jours',
     compare: '🗺️ Comparer',
+    settings: '⚙️ Paramètres',
   },
   controls: {
     postalCode:     'Code postal',

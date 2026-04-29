@@ -1,4 +1,6 @@
+const fs = require('fs');
 
+const css = `
 @reference "./tailwind.css";
 
 /* ── Elegance / Utility Reset ────────────────────────────────────────────── */
@@ -83,7 +85,7 @@ body {
 
 .stat-chip {
   background: transparent;
-  border-bottom: 1px solid var(--color-slate);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
   padding: 0.5rem 0;
   display: flex;
   justify-content: space-between;
@@ -133,9 +135,9 @@ body {
 /* ── Controls (Postal Code / Search) ────────────────────────────────────── */
 .controls-panel {
   background: var(--color-surface);
-  border: 1px solid var(--color-slate);
+  border: 1px solid rgba(0,0,0,0.08);
   padding: 2.5rem;
-  box-shadow: 12px 12px 0px var(--color-accent);
+  box-shadow: 12px 12px 0px rgba(139,0,0,0.04);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.5rem;
@@ -160,7 +162,7 @@ body {
 .form-field input, .form-field select {
   background: transparent;
   border: none;
-  border-bottom: 2px solid var(--color-slate);
+  border-bottom: 2px solid rgba(0,0,0,0.1);
   padding: 0.5rem 0;
   font-size: 1.1rem;
   font-family: 'DM Sans', sans-serif;
@@ -519,3 +521,6 @@ body {
   color: var(--color-slate);
   margin-top: 0.25rem;
 }
+`;
+
+fs.writeFileSync('styles.css', css);

@@ -5,6 +5,42 @@
  */
 
 // ─────────────────────────────────────────────────────
+// Settings
+// ─────────────────────────────────────────────────────
+
+export function getSettings(db) {
+  try {
+    const row = db.prepare('SELECT household_size, default_store_id, updated_at FROM app_settings WHERE id = 1').get();
+    
+    let defaultStore = null;
+    if (row && row.default_store_id) {
+      defaultStore = getStore(db, row.default_store_id);
+    }
+    
+    return {
+      householdSize: row?.household_size ?? 2,
+      defaultStoreId: row?.default_store_id ?? null,
+      defaultStore,
+      updatedAt: row?.updated_at ?? null
+    };
+  } catch (e) {
+    if (e.message.includes('no such table')) {
+      return { householdSize: 2, defaultStoreId: null, defaultStore: null, updatedAt: null, error: 'NO_TABLE' };
+    }
+    throw e;
+  }
+}
+
+export function updateSettings(db, payload) {
+  if (payload.householdSize !== undefined) {
+    db.prepare('UPDATE app_settings SET household_size = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1').run(payload.householdSize);
+  }
+  if (payload.defaultStoreId !== undefined) {
+    db.prepare('UPDATE app_settings SET default_store_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1').run(payload.defaultStoreId);
+  }
+}
+
+// ─────────────────────────────────────────────────────
 // Stores
 // ─────────────────────────────────────────────────────
 

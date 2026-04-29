@@ -134,3 +134,15 @@ CREATE TABLE IF NOT EXISTS refresh_runs (
   error_message     TEXT,
   created_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
 );
+
+-- ─────────────────────────────────────────────
+-- Application Settings
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS app_settings (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  household_size INTEGER NOT NULL DEFAULT 2 CHECK (household_size > 0 AND household_size <= 20),
+  default_store_id TEXT REFERENCES stores(store_id),
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO app_settings (id, household_size, default_store_id) VALUES (1, 2, NULL);

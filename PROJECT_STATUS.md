@@ -11,6 +11,7 @@
 - [x] QA and deployment ready — 6/6 test suites passing, Vite prod build ✓, CI workflows added
 
 ## Quick Start
+
 ```bash
 npm install
 npm run dev       # API (8787) + SPA (5173) together

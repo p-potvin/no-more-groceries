@@ -8,7 +8,7 @@
 
 const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron');
 const path   = require('node:path');
-const { spawn } = require('node:child_process');
+const { spawn, fork } = require('node:child_process');
 const net    = require('node:net');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,9 +19,7 @@ let apiProcess = null;
 let apiPort    = null;
 
 const isDev   = !app.isPackaged;
-const rootDir = isDev
-  ? path.join(__dirname, '..')
-  : path.join(process.resourcesPath, 'app');
+const rootDir = app.getAppPath();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Find a free TCP port
@@ -49,29 +47,37 @@ function findFreePort(preferred = 8787) {
 // Start the embedded API server
 // ─────────────────────────────────────────────────────────────────────────────
 async function startApiServer() {
-  apiPort = await findFreePort(8787);
+  apiPort = await findFreePort(process.env.PORT || 8787);
 
   const serverScript = path.join(rootDir, 'server.mjs');
   const nodeBin      = process.execPath;
 
-  console.log(`[main] Starting API on port ${apiPort}`);
+  if (isDev) console.log(`[main] Starting API on port ${apiPort}`);
 
-  apiProcess = spawn(nodeBin, [serverScript], {
+  apiProcess = fork(serverScript, [], {
     cwd: rootDir,
     env: {
       ...process.env,
       PORT:     String(apiPort),
       NODE_ENV: isDev ? 'development' : 'production',
+      DB_DIR:   path.join(app.getPath('userData'), 'Local Store'),
+      ELECTRON_RUN_AS_NODE: '1',
     },
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
   });
 
-  apiProcess.stdout.on('data', (d) => process.stdout.write(`[api] ${d}`));
-  apiProcess.stderr.on('data', (d) => process.stderr.write(`[api:err] ${d}`));
-  apiProcess.on('exit', (code) => console.log(`[main] API exited (code ${code})`));
+  apiProcess.stdout.on('data', (d) => {
+    if (isDev) process.stdout.write(`[api] ${d}`);
+  });
+  apiProcess.stderr.on('data', (d) => {
+    if (isDev) process.stderr.write(`[api:err] ${d}`);
+  });
+  apiProcess.on('exit', (code) => {
+    if (isDev) console.log(`[main] API exited (code ${code})`);
+  });
 
   await waitForPort(apiPort, 12_000);
-  console.log(`[main] API ready at http://127.0.0.1:${apiPort}`);
+  if (isDev) console.log(`[main] API ready at http://127.0.0.1:${apiPort}`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -127,6 +133,7 @@ async function createWindow() {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
     await mainWindow.loadFile(path.join(rootDir, 'dist', 'index.html'));
+    // mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

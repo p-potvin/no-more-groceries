@@ -202,3 +202,5 @@ buildResources/
 *.temp
 tmp/
 temp/
+eng.traineddata
+packages/db/migrations/002_settings.sql

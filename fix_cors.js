@@ -1,0 +1,1 @@
+const fs=require('fs');let c=fs.readFileSync('server.mjs','utf8'); c=c.replace(/'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS'/g, 'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type'); fs.writeFileSync('server.mjs',c);

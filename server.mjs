@@ -31,13 +31,25 @@ let db = null;
 let dbQueries = null;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH   = join(__dirname, 'data/groceries.db');
+const DB_DIR    = process.env.DB_DIR || join(__dirname, 'data');
+const DB_PATH   = join(DB_DIR, 'groceries.db');
 const SCHEMA    = join(__dirname, 'packages/db/schema.sql');
 
 async function initDb() {
   try {
     const { default: Database } = await import('better-sqlite3');
-    mkdirSync(join(__dirname, 'data'), { recursive: true });
+    mkdirSync(DB_DIR, { recursive: true });
+    
+    // Copy default DB on first run if needed
+    if (!existsSync(DB_PATH) && existsSync(join(__dirname, 'data/groceries.db'))) {
+      try {
+        const { copyFileSync } = await import('node:fs');
+        copyFileSync(join(__dirname, 'data/groceries.db'), DB_PATH);
+      } catch (e) {
+        console.error('[api] Failed to copy default DB', e);
+      }
+    }
+
     const instance = new Database(DB_PATH);
     instance.pragma('journal_mode = WAL');
     instance.pragma('foreign_keys = ON');
@@ -47,19 +59,20 @@ async function initDb() {
     db = instance;
     dbQueries = await import('./packages/db/queries.js');
     console.log('[api] SQLite DB loaded');
-  } catch {
+  } catch (err) {
+    console.error('[api] DB init error:', err);
     console.log('[api] No DB available — running in live-compute mode');
   }
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
-const PORT = Number(process.env.PORT || 8787);
+const PORT = Number(process.env.PORT || 8788);
 
 function json(res, status, payload) {
   res.writeHead(status, {
     'Content-Type':                'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type',
   });
   res.end(JSON.stringify(payload));
 }
@@ -104,7 +117,50 @@ function storeToDTO(s) {
 }
 
 // ── Route handlers ───────────────────────────────────────────────────────────
+  async function handleSettings(req, res, url) {
+    if (!db || !dbQueries) {
+      return err(res, 503, 'DB_UNAVAILABLE', 'Database is unavailable');
+    }
 
+    if (req.method === 'GET') {
+      try {
+        const settings = dbQueries.getSettings(db);
+        return json(res, 200, settings);
+      } catch (e) {
+        console.error('[api] Error fetching settings:', e.message);
+        return err(res, 500, 'INTERNAL_ERROR', 'Failed to retrieve settings');
+      }
+    }
+
+    if (req.method === 'PATCH') {
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(body);
+          if (payload.householdSize !== undefined && (typeof payload.householdSize !== 'number' || payload.householdSize < 1)) {
+            return err(res, 400, 'INVALID_INPUT', 'householdSize must be a positive number');
+          }
+          if (payload.defaultStoreId !== undefined && typeof payload.defaultStoreId !== 'string') {
+            return err(res, 400, 'INVALID_INPUT', 'defaultStoreId must be a string');
+          }
+          
+          dbQueries.updateSettings(db, payload);
+          const updatedSettings = dbQueries.getSettings(db);
+          return json(res, 200, updatedSettings);
+        } catch (e) {
+          console.error('[api] Error updating settings:', e);
+          if (e instanceof SyntaxError) {
+             return err(res, 400, 'INVALID_JSON', 'Malformed JSON payload');
+          }
+          return err(res, 500, 'INTERNAL_ERROR', 'Failed to update settings');
+        }
+      });
+      return;
+    }
+
+    return err(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed');
+  }
 async function handleStores(req, res, url) {
   const postalCode = url.searchParams.get('postalCode') ?? '';
   if (!postalCode.trim()) return err(res, 400, 'INVALID_INPUT', 'postalCode is required');
@@ -322,7 +378,7 @@ async function handleStoreCompare(req, res, url) {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS' });
+    res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
     return res.end();
   }
   if (!req.url) return json(res, 400, { error: { code: 'BAD_REQUEST', message: 'Missing URL' } });
@@ -332,8 +388,14 @@ const server = http.createServer(async (req, res) => {
 
   try {
     if (pathname === '/api/health') {
-      return json(res, 200, { ok: true, service: 'no-more-groceries-api', timestamp: new Date().toISOString() });
+      try {
+        const lastRun = db.prepare(`SELECT * FROM refresh_runs ORDER BY id DESC LIMIT 1`).get();
+        return json(res, 200, { ok: true, service: 'no-more-groceries-api', timestamp: new Date().toISOString(), lastRefresh: lastRun || null });
+      } catch (dbErr) {
+        return json(res, 200, { ok: true, service: 'no-more-groceries-api', timestamp: new Date().toISOString(), lastRefresh: null, dbMsg: dbErr.message });
+      }
     }
+    if (pathname === '/api/settings')        return await handleSettings(req, res, url);
     if (pathname === '/api/stores')          return await handleStores(req, res, url);
     if (pathname === '/api/deals')           return await handleDeals(req, res, url);
     if (pathname === '/api/average-cart')    return await handleAverageCart(req, res, url);
@@ -347,9 +409,18 @@ const server = http.createServer(async (req, res) => {
 });
 
 (async () => {
-  await initDb();
-  server.listen(PORT, () => {
-    console.log(`[api] No More Groceries API listening on http://localhost:${PORT}`);
-    console.log(`[api] Health: http://localhost:${PORT}/api/health`);
-  });
+  try {
+    await initDb();
+    server.listen(PORT, () => {
+      console.log(`[api] No More Groceries API listening on http://localhost:${PORT}`);
+      console.log(`[api] Health: http://localhost:${PORT}/api/health`);
+    });
+    
+    server.on('error', (err) => {
+      console.error('[api] Server error:', err);
+    });
+  } catch (err) {
+    console.error('[api] Fatal error during initialization:', err);
+    process.exit(1);
+  }
 })();

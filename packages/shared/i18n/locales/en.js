@@ -12,6 +12,7 @@ export const en = {
     cart:    '🧺 Avg Cart',
     weekly:  '📅 Weekly Cart',
     compare: '🗺️ Compare',
+    settings: '⚙️ Settings',
   },
   controls: {
     postalCode:    'Postal Code',
