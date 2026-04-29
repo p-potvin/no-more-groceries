@@ -1,6 +1,42 @@
+import { ApifyClient } from 'apify-client';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+
+const client = new ApifyClient({
+  token: process.env.APIFY_TOKEN || process.env.APIFY_API_KEY,
+});
+
+const CACHE_DIR = path.join(process.cwd(), '.cache');
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+if (!fs.existsSync(CACHE_DIR)) {
+  fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
+
+function getCache(key) {
+  try {
+    const file = path.join(CACHE_DIR, `${key}.json`);
+    if (fs.existsSync(file)) {
+      const stats = fs.statSync(file);
+      if (Date.now() - stats.mtimeMs < CACHE_TTL_MS) {
+        return JSON.parse(fs.readFileSync(file, 'utf8'));
+      }
+    }
+  } catch (err) {}
+  return null;
+}
+
+function setCache(key, data) {
+  try {
+    const file = path.join(CACHE_DIR, `${key}.json`);
+    fs.writeFileSync(file, JSON.stringify(data), 'utf8');
+  } catch (err) {}
+}
+
 /**
  * PC Express Product Search Adapter
- * Mock implementation with realistic CAD grocery products.
+ * Mock implementation with realistic CAD grocery products, now with Apify fallback.
  */
 
 /**
@@ -147,40 +183,90 @@ export async function searchProducts(storeId, searchTerms, options = {}) {
     err.code = 'INVALID_INPUT';
     throw err;
   }
+    
+    try {
+      if (process.env.APIFY_TOKEN || process.env.APIFY_API_KEY) {
+        const termsArray = Array.isArray(searchTerms) ? searchTerms : [searchTerms];
+        const termsHash = crypto.createHash('md5').update(termsArray.sort().join(',')).digest('hex');
+        const cacheKey = `products_${storeId.replace(/[^a-zA-Z0-9]/g, '_')}_${termsHash}`;
+        
+        const cachedProducts = getCache(cacheKey);
+        if (cachedProducts) {
+          console.log(`[apify] Returning cached products for store ${storeId}`);
+          return { products: cachedProducts, storeId, searchTerms, _isMock: false };
+        }
 
-  await new Promise((r) => setTimeout(r, 0));
+        console.log(`[apify] Searching items in Loblaws store ${storeId} using sunny_eternity/loblaws-grocery-scraper`);
+        
+        let banner = "superstore";
+        // Attempt to auto-infer from store ID prefixes if the caller mapped them
+        if (storeId.toUpperCase().includes('NOFRILLS')) banner = "nofrills";
 
-  const matchedIds = new Set();
+        const run = await client.actor("sunny_eternity/loblaws-grocery-scraper").call({
+          banner,
+          locationId: storeId.replace("apify-", "").substring(0, 4), // Very loose fallback mapped to 4-digit ID
+          search_terms: termsArray
+        });
 
-  for (const term of searchTerms) {
-    const words = term.toLowerCase().split(/\s+/);
-    for (const word of words) {
-      const ids = KEYWORD_INDEX.get(word);
-      if (ids) ids.forEach((id) => matchedIds.add(id));
+        const { items } = await client.dataset(run.defaultDatasetId).listItems();
+        
+        if (items && items.length > 0) {
+          const products = items.map(p => ({
+            productId: p.productId || p.itemNumber,
+            storeId,
+            name: p.name,
+            brand: p.brand || "\u003cUnknown\u003e",
+            category: p.breadcrumbs?.[0] || "\u003cUnknown\u003e",
+            packageSize: p.packageSize || null,
+            unit: p.unit || null,
+            regularPrice: p.regularPrice || p.price,
+            salePrice: p.salePrice || null,
+            isOnSale: !!p.salePrice && p.salePrice < (p.regularPrice || p.price),
+            promoDescription: p.promoText || null,
+          }));
+
+          setCache(cacheKey, products);
+          return { products, storeId, searchTerms, _isMock: false };
+        }
+        console.log(`[apify] No live products found via Apify for store ${storeId}, falling back to static mocks.`);
+      }
+    } catch (err) {
+      console.error(`[apify] Agent run failed during live product search: ${err.message}`);
     }
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    const matchedIds = new Set();
+    
+    for (const term of searchTerms) {
+      const words = term.toLowerCase().split(/\s+/);
+      for (const word of words) {
+        const ids = KEYWORD_INDEX.get(word);
+        if (ids) ids.forEach((id) => matchedIds.add(id));
+      }
+    }
+
+    // If no terms given, return all products
+    const candidates = matchedIds.size > 0
+      ? BASE_CATALOG.filter((p) => matchedIds.has(p.productId))
+      : BASE_CATALOG;
+
+    const products = candidates.map((p) => applyStoreAdjustment(p, storeId));
+
+    return { products, storeId, searchTerms, _isMock: true };
   }
 
-  // If no terms given, return all products
-  const candidates = matchedIds.size > 0
-    ? BASE_CATALOG.filter((p) => matchedIds.has(p.productId))
-    : BASE_CATALOG;
-
-  const products = candidates.map((p) => applyStoreAdjustment(p, storeId));
-
-  return { products, storeId, searchTerms, _isMock: true };
-}
-
-/**
- * Fetch a single product by ID for a given store.
- * @param {string} storeId
- * @param {string} productId
- * @returns {Promise<Product|null>}
- */
+  /**
+   * Fetch a single product by ID for a given store.
+   * @param {string} storeId
+   * @param {string} productId
+   * @returns {Promise<Product|null>}
+   */
 export async function getProductById(storeId, productId) {
-  await new Promise((r) => setTimeout(r, 0));
-  const base = BASE_CATALOG.find((p) => p.productId === productId);
-  if (!base) return null;
-  return applyStoreAdjustment(base, storeId);
-}
+    await new Promise((r) => setTimeout(r, 0));
+    const base = BASE_CATALOG.find((p) => p.productId === productId);
+    if (!base) return null;
+    return applyStoreAdjustment(base, storeId);
+  }
 
-export { BASE_CATALOG, STORE_ADJUSTMENT };
+  export { BASE_CATALOG, STORE_ADJUSTMENT };

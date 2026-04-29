@@ -71,10 +71,27 @@ export function upsertStore(db, store) {
   });
 }
 
-export function getStoresByPostalCode(db, _postalCode) {
-  // In a geo-aware implementation you'd filter by proximity.
-  // For MVP, return all stores (we have a small curated list).
-  return db.prepare('SELECT * FROM stores ORDER BY name').all();
+export function getStoresByPostalCode(db, postalCode) {
+  const stores = db.prepare('SELECT * FROM stores').all();
+  if (!postalCode) return stores;
+  
+  const normalized = postalCode.trim().toUpperCase().replace(/\s+/g, '');
+  
+  return stores.sort((a, b) => {
+    const pcA = (a.postal_code || '').replace(/\s+/g, '').toUpperCase();
+    const pcB = (b.postal_code || '').replace(/\s+/g, '').toUpperCase();
+    
+    let matchA = 0;
+    while (matchA < normalized.length && matchA < pcA.length && normalized[matchA] === pcA[matchA]) matchA++;
+    
+    let matchB = 0;
+    while (matchB < normalized.length && matchB < pcB.length && normalized[matchB] === pcB[matchB]) matchB++;
+    
+    if (matchA !== matchB) {
+      return matchB - matchA; // Sort by longest match descending
+    }
+    return (a.name || '').localeCompare(b.name || '');
+  });
 }
 
 // ─────────────────────────────────────────────────────
