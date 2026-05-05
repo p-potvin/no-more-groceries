@@ -22,3 +22,9 @@ description: Core architectural principles, UI constraints, and build rules for 
 ## 4. Workflows & State
 - Always check the `PROJECT_STATUS.md` and `TODO.md` (or `TASKS.md`) before beginning large implementations, such as application settings or authentication flows. 
 - Log your agent work to the shared ledger via PowerShell strictly as defined in `CLAUDE.md`.
+
+<!-- VAULT-THEMES-SUBMODULE:START -->
+VaultWares guidance lives in `vault-themes/AGENTS.md` and `vault-themes/CONTEXT.md`.
+Read those files before UI, branding, design-system, token, auth UX, encrypted
+communication UX, Figma-derived, or agent-instruction work.
+<!-- VAULT-THEMES-SUBMODULE:END -->
