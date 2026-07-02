@@ -1,7 +1,7 @@
 {
   "name": "no-more-groceries",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Daily PC Express grocery deals, benchmark cart pricing, and 7-day recommended cart",
   "author": "No More Groceries",
