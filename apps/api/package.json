@@ -18,7 +18,7 @@
     "@nmg/domain-average-cart": "*",
     "@nmg/domain-weekly-cart": "*",
     "@nmg/integration-pc-express": "*",
-    "express": "^4.22.2"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0"
